@@ -1,0 +1,59 @@
+﻿@page "/AddUserPage"
+
+@using ArztApp.Services
+@using Microsoft.AspNetCore.Components
+@using ArztApp.BAL
+@using ArztApp.Helper
+@inject IJSRuntime JsRuntime
+@inject UserServices userServices
+@inject NavigationManager NavigationManager
+
+<h1>Add Patient</h1>
+
+<EditForm Model="@user" OnValidSubmit="Submit">
+        <DataAnnotationsValidator />
+
+            
+            <label><strong>Username:</strong></label>
+            <InputText id="Username" @bind-Value="@user.Username" />
+            <ValidationMessage For="@(() => @user.Username)" />
+
+             <br/>
+
+             <label><strong>Password:</strong></label>
+            <InputText type="password" id="Password" @bind-Value="@user.Pass" />
+            <ValidationMessage For="@(() => @user.Pass)" />
+
+            <br/>
+            <br/>
+            <button type="submit">add User</button>
+</EditForm>
+
+@code {
+    private User user = new User();
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    protected async void Submit()
+    {
+        try
+        {
+	        var hashPassword = Hashing.HashPassword(user.Pass);
+
+	        user.Pass = hashPassword;
+	        user.RegDate = DateTime.Now;    
+
+	        await userServices.UpdateAsync(user);
+	        
+	        await JsRuntime.InvokeVoidAsync("alert", "user created!");
+        }
+        catch (Exception ex)
+        {
+            await JsRuntime.InvokeVoidAsync("alert", ex.Message);
+        }
+  
+	}
+    
+}

@@ -1,0 +1,75 @@
+﻿@page "/"
+
+@using ArztApp.BAL
+@using ArztApp.Helper
+@using ArztApp.Services
+@using Microsoft.AspNetCore.Components
+@inject IJSRuntime JsRuntime
+@inject UserServices userServices 
+@inject NavigationManager NavigationManager
+
+<h1>Login</h1>
+
+<br/>
+
+<EditForm Model="@user" OnValidSubmit="@HandleValidSubmit">
+	<DataAnnotationsValidator />
+	<ValidationSummary />
+            
+       
+	<label><strong class="inputText">Name:</strong></label>
+	<InputText @bind-Value="user.Username" />
+         
+       
+         
+	<label><strong class="inputText">Passwort:</strong></label>
+	<InputText type="password" @bind-Value="user.Pass" />
+      
+
+	<br/>
+	<br/>
+
+	<h3>
+		<button type="submit">Login</button>
+	</h3>
+
+</EditForm>
+
+@code {
+
+	private User user = new();
+
+	List<User> userList;
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (Helper.Login.isLogin == true) {  await JsRuntime.InvokeVoidAsync("alert", "You logged out!"); Helper.Login.isLogin = false; StateHasChanged(); }
+		
+	}
+
+	private async void HandleValidSubmit()
+	{
+		try
+		{
+			userList = await Task.Run(() => userServices.GetAllAsync());
+			foreach (var item in userList)
+			{
+				if (item.Username == user.Username && Hashing.ValidatePassword(user.Pass, item.Pass))
+				{
+					Helper.Login.isLogin = true;
+					NavigationManager.NavigateTo("PatientPage");
+				}
+			}
+
+			if (Helper.Login.isLogin == false)
+			{
+				await JsRuntime.InvokeVoidAsync("alert", $"<{user.Username}> not authorized to log in!"); // Alert
+			}
+		}
+		catch (Exception e)
+		{
+			await JsRuntime.InvokeVoidAsync("alert", e.Message);
+		}
+		
+	}
+}

@@ -1,0 +1,7 @@
+dotnet ef dbcontext scaffold "Server=LWLNB2AB104\SQLEXPRESS; Database=Arzt; Integrated Security=True; TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -o BAL
+
+dotnet ef dbcontext scaffold "Server=ANDREASPC\SQLEXPRESS; Database=Gartencenter; Integrated Security=True; TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -o BAL
+
+Achtung cmd muss mit Admin gestartet werden!
+
+dotnet tool install --global dotnet-ef
